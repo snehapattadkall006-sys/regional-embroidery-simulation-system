@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}My Favorites — RESS{% endblock %}
+{% block content %}
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header"><span class="sb-logo">✦ RESS</span><button class="sb-close" id="sbClose"><i class="fas fa-times"></i></button></div>
+    <div class="sb-user">
+      <div class="sb-av">{{ session.user_name[0].upper() }}</div>
+      <div><span class="sb-ug">Hello</span><span class="sb-un">{{ session.user_name }}</span></div>
+    </div>
+    <nav class="sb-nav">
+      <a href="{{ url_for('dashboard') }}" class="sb-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="{{ url_for('design_selection') }}" class="sb-link"><i class="fas fa-palette"></i> Browse Designs</a>
+      <a href="{{ url_for('favorites') }}" class="sb-link active"><i class="fas fa-heart"></i> Favorites</a>
+      <a href="{{ url_for('saved_designs') }}" class="sb-link"><i class="fas fa-bookmark"></i> Saved</a>
+      <a href="{{ url_for('learning') }}" class="sb-link"><i class="fas fa-book-open"></i> Learning</a>
+      <a href="{{ url_for('logout') }}" class="sb-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <div class="top-bar">
+      <button class="tb-toggle" id="sbToggle"><i class="fas fa-bars"></i></button>
+      <h2 class="page-title">My <span>Favorites</span></h2>
+    </div>
+    <div class="dash-body">
+      {% if favorites %}
+      <div class="designs-grid">
+        {% for fav in favorites %}
+        <div class="design-card" id="fc-{{ fav.fav_id }}">
+          <div class="dc-img">
+            <img src="{{ fav.image }}" alt="{{ fav.name }}" onerror="this.src='https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=400'">
+            <div class="dc-sc">{{ fav.state }}</div>
+          </div>
+          <div class="dc-body">
+            <div class="dc-name">{{ fav.name }}</div>
+            <p class="dc-desc">{{ (fav.description or '')[:95] }}...</p>
+            <div class="dc-foot">
+              <a href="{{ url_for('design_details', design_id=fav.id) }}" class="btn-view"><i class="fas fa-eye"></i> View</a>
+              <button class="btn-fav on" onclick="removeFav({{ fav.id }}, {{ fav.fav_id }})"><i class="fas fa-heart"></i></button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="no-results">
+        <i class="fas fa-heart-broken"></i>
+        <h4>No favorites yet</h4>
+        <p>Explore designs and add them to your favorites</p>
+        <a href="{{ url_for('design_selection') }}" class="btn-explore">Browse Designs</a>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+<script>
+document.getElementById('sbToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('sbClose').addEventListener('click',  () => document.getElementById('sidebar').classList.remove('open'));
+function removeFav(did, fid){
+  fetch(`/toggle-favorite/${did}`,{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.success && d.action==='removed'){
+      document.getElementById(`fc-${fid}`).remove();
+      showToast('Removed from favorites','info');
+    }
+  });
+}
+</script>
+{% endblock %}

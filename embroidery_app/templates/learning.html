@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% block title %}Learning Hub — RESS{% endblock %}
+{% block content %}
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header"><span class="sb-logo">✦ RESS</span><button class="sb-close" id="sbClose"><i class="fas fa-times"></i></button></div>
+    <nav class="sb-nav">
+      <a href="{{ url_for('dashboard') }}" class="sb-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="{{ url_for('design_selection') }}" class="sb-link"><i class="fas fa-palette"></i> Browse Designs</a>
+      <a href="{{ url_for('favorites') }}" class="sb-link"><i class="fas fa-heart"></i> Favorites</a>
+      <a href="{{ url_for('saved_designs') }}" class="sb-link"><i class="fas fa-bookmark"></i> Saved</a>
+      <a href="{{ url_for('learning') }}" class="sb-link active"><i class="fas fa-book-open"></i> Learning</a>
+      <a href="{{ url_for('logout') }}" class="sb-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+  <main class="main-content">
+    <div class="top-bar">
+      <button class="tb-toggle" id="sbToggle"><i class="fas fa-bars"></i></button>
+      <h2 class="page-title">Embroidery <span>Learning Hub</span></h2>
+    </div>
+    <div class="dash-body">
+      <div class="learn-intro">
+        <h2>Master the Art of <em>Indian Embroidery</em></h2>
+        <p>From basic stitches to advanced techniques — your complete guide to India's embroidery traditions</p>
+      </div>
+
+      <!-- Stitching Methods -->
+      <div class="learn-section">
+        <div class="sec-head">✦ Core Stitching Methods</div>
+        <div class="learn-cards">
+          <div class="learn-card">
+            <div class="lc-icon">🧵</div>
+            <h4>Running Stitch (Taipchi)</h4>
+            <p>The foundation of Chikankari. Simple in-and-out stitch done in straight lines to outline and fill motifs.</p>
+            <div class="learn-steps">
+              <div class="lstep"><div class="lstep-num">1</div>Thread needle with cotton thread</div>
+              <div class="lstep"><div class="lstep-num">2</div>Insert needle from back to front</div>
+              <div class="lstep"><div class="lstep-num">3</div>Push through at equal intervals</div>
+              <div class="lstep"><div class="lstep-num">4</div>Continue in uniform rhythm</div>
+            </div>
+            <span class="lc-tag">Chikankari · Kasuti</span>
+          </div>
+          <div class="learn-card">
+            <div class="lc-icon">✦</div>
+            <h4>Darning Stitch (Negi)</h4>
+            <p>Primary stitch of Phulkari and Kasuti. Horizontal rows pass over and under warp threads creating geometric fills.</p>
+            <div class="learn-steps">
+              <div class="lstep"><div class="lstep-num">1</div>Count fabric threads carefully</div>
+              <div class="lstep"><div class="lstep-num">2</div>Work from wrong side of fabric</div>
+              <div class="lstep"><div class="lstep-num">3</div>Pass silk thread over warp threads</div>
+              <div class="lstep"><div class="lstep-num">4</div>Return in opposite direction</div>
+            </div>
+            <span class="lc-tag">Phulkari · Kasuti</span>
+          </div>
+          <div class="learn-card">
+            <div class="lc-icon">🌸</div>
+            <h4>Chain Stitch</h4>
+            <p>Creates linked loops forming chains, used in Kutch embroidery for outlining motifs and decorative borders.</p>
+            <div class="learn-steps">
+              <div class="lstep"><div class="lstep-num">1</div>Bring thread to front at start</div>
+              <div class="lstep"><div class="lstep-num">2</div>Hold thread to form a loop</div>
+              <div class="lstep"><div class="lstep-num">3</div>Insert needle back at start point</div>
+              <div class="lstep"><div class="lstep-num">4</div>Catch the loop with needle</div>
+            </div>
+            <span class="lc-tag">Kutch Embroidery</span>
+          </div>
+          <div class="learn-card">
+            <div class="lc-icon">💫</div>
+            <h4>Shadow Work (Bakhiya)</h4>
+            <p>Signature of Chikankari. Worked from the back of translucent fabric, creating soft shadow effects on the front.</p>
+            <div class="learn-steps">
+              <div class="lstep"><div class="lstep-num">1</div>Use transparent muslin or georgette</div>
+              <div class="lstep"><div class="lstep-num">2</div>Work herringbone stitch on wrong side</div>
+              <div class="lstep"><div class="lstep-num">3</div>Stitches show as shadow through fabric</div>
+              <div class="lstep"><div class="lstep-num">4</div>Maintain even tension throughout</div>
+            </div>
+            <span class="lc-tag">Chikankari</span>
+          </div>
+          <div class="learn-card">
+            <div class="lc-icon">🔲</div>
+            <h4>Applique (Gota Work)</h4>
+            <p>Gold or silver ribbon cut into shapes and stitched onto fabric — foundation of Gota Patti from Rajasthan.</p>
+            <div class="learn-steps">
+              <div class="lstep"><div class="lstep-num">1</div>Cut gota ribbon to desired shape</div>
+              <div class="lstep"><div class="lstep-num">2</div>Pin securely to base fabric</div>
+              <div class="lstep"><div class="lstep-num">3</div>Slip stitch all edges to secure</div>
+              <div class="lstep"><div class="lstep-num">4</div>Add zari thread accents</div>
+            </div>
+            <span class="lc-tag">Gota Patti</span>
+          </div>
+          <div class="learn-card">
+            <div class="lc-icon">🪟</div>
+            <h4>Mirror Work (Shisha)</h4>
+            <p>Attaching small mirrors to fabric using decorative stitching — hallmark of Kutch embroidery from Gujarat.</p>
+            <div class="learn-steps">
+              <div class="lstep"><div class="lstep-num">1</div>Place mirror on fabric</div>
+              <div class="lstep"><div class="lstep-num">2</div>Secure with criss-cross base stitches</div>
+              <div class="lstep"><div class="lstep-num">3</div>Work buttonhole stitch around edge</div>
+              <div class="lstep"><div class="lstep-num">4</div>Ensure mirror is fully secured</div>
+            </div>
+            <span class="lc-tag">Kutch Embroidery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Tutorials -->
+      <div class="learn-section">
+        <div class="sec-head">✦ Video Tutorials</div>
+        <p class="section-sub-desc">Watch real embroidery masters demonstrate traditional techniques</p>
+        <div class="video-grid">
+          <div class="video-card">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/kfDMgfOxwIQ" title="Kasuti" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info">
+              <div class="video-state-tag karnataka-tag">Karnataka</div>
+              <h5>Kasuti Embroidery — Beginner to Advanced</h5>
+              <p>Master the four classic Kasuti stitches: Murgi, Negi, Gavanti, and Menthi on Ilkal fabric.</p>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/O5PBMjDJGDA"  title="Phulkari" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info">
+              <div class="video-state-tag punjab-tag">Punjab</div>
+              <h5>Phulkari — Traditional Flower Work</h5>
+              <p>Learn the darning stitch on khaddar fabric to create geometric floral Phulkari patterns.</p>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/6nh7qqzpCcw" title="Chikankari" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info">
+              <div class="video-state-tag up-tag">Uttar Pradesh</div>
+              <h5>Chikankari — Lucknow Shadow Work</h5>
+              <p>Discover Taipchi, Bakhiya shadow work, Jali net patterns and the Murri French knot.</p>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/WPkoWdx86hI" title="Kutch" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info">
+              <div class="video-state-tag gujarat-tag">Gujarat</div>
+              <h5>Kutch Embroidery &amp; Mirror Work</h5>
+              <p>Shisha mirror attachment, chain stitch borders, and geometric fill patterns step-by-step.</p>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/FDqorE1ySo4" title="Gota Patti" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info">
+              <div class="video-state-tag rajasthan-tag">Rajasthan</div>
+              <h5>Gota Patti — Royal Ribbon Applique</h5>
+              <p>Fold, pleat and stitch gold gota ribbon to create 3D floral motifs for bridal wear.</p>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/RoLuE_1T1Ps" title="Indian Embroidery" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+            <div class="video-info">
+              <div class="video-state-tag india-tag">All India</div>
+              <h5>Indian Embroidery — Heritage Overview</h5>
+              <p>A comprehensive look at India's regional embroidery traditions and their place in modern fashion.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="learn-section">
+        <div class="sec-head">✦ Essential Tools &amp; Materials</div>
+        <div class="tools-grid">
+          <div class="tool-item"><i class="fas fa-syringe"></i><span>Embroidery Needles</span></div>
+          <div class="tool-item"><i class="fas fa-ring"></i><span>Embroidery Hoop</span></div>
+          <div class="tool-item"><i class="fas fa-cut"></i><span>Sharp Scissors</span></div>
+          <div class="tool-item"><i class="fas fa-ruler"></i><span>Tracing Paper</span></div>
+          <div class="tool-item"><i class="fas fa-pen"></i><span>Transfer Pen</span></div>
+          <div class="tool-item"><i class="fas fa-tshirt"></i><span>Base Fabric</span></div>
+          <div class="tool-item"><i class="fas fa-circle" style="color:var(--gold)"></i><span>Silk Floss Thread</span></div>
+          <div class="tool-item"><i class="fas fa-star"></i><span>Shisha Mirrors</span></div>
+          <div class="tool-item"><i class="fas fa-ribbon"></i><span>Gota Ribbon</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+document.getElementById('sbToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('sbClose').addEventListener('click',  () => document.getElementById('sidebar').classList.remove('open'));
+</script>
+{% endblock %}

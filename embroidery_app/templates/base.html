@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Regional Embroidery Simulation System{% endblock %}</title>
+
+<!-- Preconnect to speed up external resources -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+
+<!-- Fonts: only weights actually used -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Icons: subset only, async -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+
+<!-- App styles -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Minimal inline spinner — no external dependency -->
+<div id="ls" style="position:fixed;inset:0;background:#0c0a06;display:flex;align-items:center;justify-content:center;z-index:9999;transition:opacity .3s">
+  <div style="width:36px;height:36px;border-radius:50%;border:2px solid #1c1710;border-top-color:#0d9488;animation:sp .8s linear infinite"></div>
+  <style>@keyframes sp{to{transform:rotate(360deg)}}</style>
+</div>
+
+<div id="toast-container" class="toast-container"></div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-messages">
+  {% for category, message in messages %}
+  <div class="flash-alert flash-{{ category }}">
+    <i class="fas {% if category=='success' %}fa-check-circle{% elif category=='danger' %}fa-exclamation-circle{% elif category=='warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+    {{ message }}
+    <button class="flash-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<script>
+// Hide spinner immediately when page content is ready
+document.addEventListener('DOMContentLoaded', function() {
+  var s = document.getElementById('ls');
+  if (s) { s.style.opacity = '0'; setTimeout(function(){ s.remove(); }, 300); }
+});
+</script>
+<script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

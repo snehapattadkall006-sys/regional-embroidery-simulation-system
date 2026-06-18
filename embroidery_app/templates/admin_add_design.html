@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Add Design — RESS Admin{% endblock %}
+{% block content %}
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header"><span class="sb-logo">✦ RESS Admin</span><button class="sb-close" id="sbClose"><i class="fas fa-times"></i></button></div>
+    <div class="sb-user">
+      <div class="sb-av adm"><i class="fas fa-user-shield"></i></div>
+      <div><span class="sb-ug">Administrator</span><span class="sb-un">{{ session.admin_email }}</span></div>
+    </div>
+    <nav class="sb-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="sb-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin_add_design') }}" class="sb-link active"><i class="fas fa-plus-circle"></i> Add Design</a>
+      <a href="{{ url_for('design_selection') }}" class="sb-link" target="_blank"><i class="fas fa-palette"></i> View Designs</a>
+      <a href="{{ url_for('admin_setup') }}" class="sb-link"><i class="fas fa-cog"></i> Reset Admin</a>
+      <a href="{{ url_for('admin_logout') }}" class="sb-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="top-bar">
+      <button class="tb-toggle" id="sbToggle"><i class="fas fa-bars"></i></button>
+      <h2 class="page-title">Add New <span>Design</span></h2>
+      <div class="admin-bar-badge"><i class="fas fa-shield-alt"></i> Admin Panel</div>
+    </div>
+
+    <div class="dash-body">
+      <div class="add-design-wrap">
+        <form method="POST" action="{{ url_for('admin_add_design') }}" class="add-design-form">
+
+          <!-- Basic Info -->
+          <div class="form-section">
+            <div class="form-section-title"><i class="fas fa-info-circle"></i> Basic Information</div>
+            <div class="form-row-2">
+              <div class="ff">
+                <label class="fl">State <span class="req">*</span></label>
+                <select class="fse" name="state" required>
+                  <option value="">Select State</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                </select>
+              </div>
+              <div class="ff">
+                <label class="fl">Embroidery Name <span class="req">*</span></label>
+                <input class="fi" type="text" name="name" placeholder="e.g. Kasuti" required>
+              </div>
+            </div>
+            <div class="ff">
+              <label class="fl">Short Description <span class="req">*</span></label>
+              <input class="fi" type="text" name="description" placeholder="One line description of the embroidery" required>
+            </div>
+            <div class="ff">
+              <label class="fl">Image URL</label>
+              <input class="fi" type="url" name="image" placeholder="https://... (paste image URL)" id="imgUrl">
+              <div class="img-preview-wrap" id="imgPreview" style="display:none">
+                <img id="imgPreviewImg" src="" alt="Preview">
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="ff">
+                <label class="fl">Fabric Type</label>
+                <input class="fi" type="text" name="fabric_type" placeholder="e.g. Silk, Cotton, Muslin">
+              </div>
+              <div class="ff">
+                <label class="fl">Materials Required</label>
+                <input class="fi" type="text" name="materials" placeholder="e.g. Silk thread, needles, hoop">
+              </div>
+            </div>
+          </div>
+
+          <!-- Detailed Info -->
+          <div class="form-section">
+            <div class="form-section-title"><i class="fas fa-scroll"></i> Detailed Information</div>
+            <div class="ff">
+              <label class="fl">Full History</label>
+              <textarea class="fta" name="history" rows="4" placeholder="Detailed history of this embroidery tradition..."></textarea>
+            </div>
+            <div class="ff">
+              <label class="fl">Practising Community</label>
+              <textarea class="fta" name="community" rows="2" placeholder="Which community practises this embroidery..."></textarea>
+            </div>
+            <div class="ff">
+              <label class="fl">Cultural Significance</label>
+              <textarea class="fta" name="cultural_significance" rows="3" placeholder="Cultural importance and significance..."></textarea>
+            </div>
+            <div class="ff">
+              <label class="fl">Traditional Usage</label>
+              <textarea class="fta" name="traditional_usage" rows="2" placeholder="How it is traditionally used..."></textarea>
+            </div>
+            <div class="ff">
+              <label class="fl">Techniques & Stitches</label>
+              <textarea class="fta" name="techniques" rows="3" placeholder="Stitching techniques and methods used..."></textarea>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="form-actions">
+            <button type="submit" class="btn-add-design">
+              <i class="fas fa-plus-circle"></i> Add Design
+            </button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn-cancel">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<style>
+.add-design-wrap{max-width:800px}
+.add-design-form{display:flex;flex-direction:column;gap:20px}
+.form-section{background:var(--s1);border:.5px solid rgba(13,148,136,.12);border-radius:var(--r2);padding:24px;display:flex;flex-direction:column;gap:16px}
+.form-section-title{font-family:var(--fd);font-size:16px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:.5px solid rgba(13,148,136,.1)}
+.form-section-title i{color:var(--t)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.req{color:var(--err);font-size:13px}
+.img-preview-wrap{margin-top:10px;border-radius:var(--r);overflow:hidden;border:.5px solid rgba(13,148,136,.2);max-height:200px}
+.img-preview-wrap img{width:100%;max-height:200px;object-fit:cover}
+.form-actions{display:flex;gap:12px;align-items:center}
+.btn-add-design{padding:13px 32px;background:var(--t);color:#fff;border-radius:var(--r3);font-weight:700;font-size:14px;display:flex;align-items:center;gap:9px;transition:all .2s;border:none;cursor:pointer}
+.btn-add-design:hover{background:var(--t3);transform:translateY(-1px)}
+.btn-cancel{padding:13px 24px;border:.5px solid rgba(255,255,255,.1);color:var(--mu);border-radius:var(--r3);font-size:14px;transition:all .2s}
+.btn-cancel:hover{color:var(--err);border-color:var(--err)}
+@media(max-width:640px){.form-row-2{grid-template-columns:1fr}}
+</style>
+
+<script>
+document.getElementById('sbToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('sbClose').addEventListener('click',  () => document.getElementById('sidebar').classList.remove('open'));
+
+// Image preview
+document.getElementById('imgUrl').addEventListener('input', function(){
+  const url = this.value.trim();
+  const wrap = document.getElementById('imgPreview');
+  const img  = document.getElementById('imgPreviewImg');
+  if(url){
+    img.src = url;
+    img.onload  = () => wrap.style.display = 'block';
+    img.onerror = () => wrap.style.display = 'none';
+  } else {
+    wrap.style.display = 'none';
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard — RESS{% endblock %}
+{% block extra_css %}<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>{% endblock %}
+{% block content %}
+<div class="app-layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header"><span class="sb-logo">✦ RESS Admin</span><button class="sb-close" id="sbClose"><i class="fas fa-times"></i></button></div>
+    <div class="sb-user">
+      <div class="sb-av adm"><i class="fas fa-user-shield"></i></div>
+      <div><span class="sb-ug">Administrator</span><span class="sb-un">{{ session.admin_email }}</span></div>
+    </div>
+    <nav class="sb-nav">
+      <a href="{{ url_for('admin_dashboard') }}" class="sb-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin_add_design') }}" class="sb-link"><i class="fas fa-plus-circle"></i> Add Design</a>
+      <a href="{{ url_for('design_selection') }}" class="sb-link" target="_blank"><i class="fas fa-palette"></i> View Designs</a>
+      <a href="{{ url_for('admin_setup') }}" class="sb-link"><i class="fas fa-cog"></i> Reset Admin</a>
+      <a href="{{ url_for('admin_logout') }}" class="sb-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <div class="top-bar">
+      <button class="tb-toggle" id="sbToggle"><i class="fas fa-bars"></i></button>
+      <h2 class="page-title">Admin <span>Dashboard</span></h2>
+      <div class="admin-bar-badge"><i class="fas fa-shield-alt"></i> Admin Panel</div>
+    </div>
+
+    <div class="dash-body">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div><div class="stat-num">{{ total_users }}</div><div class="stat-lbl">Total Users</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-palette"></i></div>
+          <div><div class="stat-num">{{ total_designs }}</div><div class="stat-lbl">Designs</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-bookmark"></i></div>
+          <div><div class="stat-num">{{ total_saved }}</div><div class="stat-lbl">Saved Simulations</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-star"></i></div>
+          <div><div class="stat-num">{{ total_feedback }}</div><div class="stat-lbl">Feedback</div></div>
+        </div>
+      </div>
+
+      <!-- Quick Action -->
+      <div style="margin-bottom:22px">
+        <a href="{{ url_for('admin_add_design') }}" class="btn-add-design-quick">
+          <i class="fas fa-plus-circle"></i> Add New Design
+        </a>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <h4><i class="fas fa-chart-bar"></i> Users by Month</h4>
+          <canvas id="chartUsers" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4><i class="fas fa-chart-pie"></i> Most Selected Embroidery</h4>
+          <canvas id="chartDesigns" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4><i class="fas fa-circle-notch"></i> Saved Designs by State</h4>
+          <canvas id="chartSaved" height="220"></canvas>
+        </div>
+        <div class="chart-card">
+          <h4><i class="fas fa-download"></i> Downloads by Design</h4>
+          <canvas id="chartDownloads" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- All Designs Table -->
+      <div class="admin-table-sec">
+        <div class="sec-head-row">
+          <div class="sec-head">All Designs</div>
+          <a href="{{ url_for('admin_add_design') }}" class="btn-add-sm">
+            <i class="fas fa-plus"></i> Add Design
+          </a>
+        </div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>#</th><th>Name</th><th>State</th><th>Fabric</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+              {% for d in all_designs %}
+              <tr>
+                <td>{{ d.id }}</td>
+                <td>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <img src="{{ d.image }}" style="width:38px;height:38px;object-fit:cover;border-radius:6px;border:.5px solid rgba(13,148,136,.2)" onerror="this.style.display='none'">
+                    <span>{{ d.name }}</span>
+                  </div>
+                </td>
+                <td><span class="state-pill">{{ d.state }}</span></td>
+                <td>{{ d.fabric_type or '-' }}</td>
+                <td>
+                  <div style="display:flex;gap:8px">
+                    <a href="{{ url_for('design_details', design_id=d.id) }}" target="_blank" class="tbl-btn view-btn">
+                      <i class="fas fa-eye"></i> View
+                    </a>
+                    <form method="POST" action="{{ url_for('admin_delete_design', design_id=d.id) }}" style="display:inline" onsubmit="return confirm('Delete {{ d.name }}?')">
+                      <button type="submit" class="tbl-btn del-btn">
+                        <i class="fas fa-trash"></i> Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" class="empty-row">No designs yet — <a href="{{ url_for('admin_add_design') }}" style="color:var(--t)">Add one</a></td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Users -->
+      <div class="admin-table-sec">
+        <div class="sec-head">Recent Users</div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Joined</th></tr></thead>
+            <tbody>
+              {% for u in recent_users %}
+              <tr>
+                <td>{{ u.id }}</td><td>{{ u.full_name }}</td><td>{{ u.email }}</td>
+                <td>{{ u.created_at.strftime('%d %b %Y') if u.created_at else '-' }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="4" class="empty-row">No users yet</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Feedback -->
+      <div class="admin-table-sec">
+        <div class="sec-head">Recent Feedback</div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Rating</th><th>Message</th><th>Date</th></tr></thead>
+            <tbody>
+              {% for fb in recent_feedback %}
+              <tr>
+                <td>{{ fb.id }}</td>
+                <td>{{ fb.user_name }}</td>
+                <td>{{ fb.email }}</td>
+                <td style="color:#f0c060">{{ '★' * fb.rating }}{{ '☆' * (5 - fb.rating) }}</td>
+                <td>{{ fb.message[:50] }}{% if fb.message|length > 50 %}...{% endif %}</td>
+                <td>{{ fb.created_at.strftime('%d %b %Y') if fb.created_at else '-' }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="6" class="empty-row">No feedback yet</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<style>
+.btn-add-design-quick{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:12px 28px;background:var(--t);color:#fff;
+  border-radius:var(--r3);font-weight:700;font-size:14px;transition:all .2s
+}
+.btn-add-design-quick:hover{background:var(--t3);transform:translateY(-1px)}
+.btn-add-sm{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 16px;background:rgba(13,148,136,.1);color:var(--t);
+  border:.5px solid rgba(13,148,136,.25);border-radius:var(--r3);
+  font-size:13px;font-weight:600;transition:all .2s
+}
+.btn-add-sm:hover{background:var(--t);color:#fff}
+.state-pill{
+  display:inline-block;background:rgba(13,148,136,.1);color:var(--t);
+  font-size:10.5px;letter-spacing:.5px;padding:3px 10px;border-radius:var(--r3)
+}
+.tbl-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:5px 12px;border-radius:var(--r);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;border:none;
+}
+.view-btn{background:rgba(13,148,136,.1);color:var(--t);border:.5px solid rgba(13,148,136,.2)}
+.view-btn:hover{background:var(--t);color:#fff}
+.del-btn{background:rgba(224,82,82,.1);color:#e05252;border:.5px solid rgba(224,82,82,.2)}
+.del-btn:hover{background:#e05252;color:#fff}
+</style>
+
+<script>
+document.getElementById('sbToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('sbClose').addEventListener('click',  () => document.getElementById('sidebar').classList.remove('open'));
+
+// ── Distinct color palette for charts ──
+const COLORS = [
+  '#0d9488','#f59e0b','#8b5cf6','#ef4444','#10b981',
+  '#3b82f6','#f97316','#ec4899','#14b8a6','#a855f7',
+  '#84cc16','#06b6d4','#f43f5e','#6366f1','#22c55e'
+];
+const DARK   = '#131008';
+const TICK   = '#7a7060';
+const GRID   = 'rgba(13,148,136,.08)';
+const legend = { labels:{ color:'#99f6e4', font:{ family:'Inter', size:11 }, padding:10 } };
+const scales = {
+  x:{ ticks:{ color:TICK }, grid:{ color:GRID } },
+  y:{ ticks:{ color:TICK }, grid:{ color:GRID }, beginAtZero:true }
+};
+
+const uByM  = {{ users_by_month | tojson }};
+const dView = {{ design_views_data | tojson }};
+const sByS  = {{ saved_by_state | tojson }};
+const dls   = {{ downloads_data | tojson }};
+
+// 1. Users by Month — gradient bars
+const uCtx = document.getElementById('chartUsers').getContext('2d');
+const uGrad = uCtx.createLinearGradient(0,0,0,200);
+uGrad.addColorStop(0,'rgba(13,148,136,.8)');
+uGrad.addColorStop(1,'rgba(13,148,136,.1)');
+new Chart(uCtx, {
+  type:'bar',
+  data:{
+    labels: uByM.length ? uByM.map(d=>d.month) : ['No data'],
+    datasets:[{ label:'New Users',
+      data: uByM.length ? uByM.map(d=>d.cnt) : [0],
+      backgroundColor: uGrad, borderColor:'#0d9488',
+      borderWidth:1.5, borderRadius:6 }]
+  },
+  options:{ plugins:{ legend }, scales }
+});
+
+// 2. Design views pie — all distinct colors
+new Chart(document.getElementById('chartDesigns'), {
+  type:'pie',
+  data:{
+    labels: dView.length ? dView.map(d=>d.design_name) :
+      ['Kasuti','Kutch','Chikankari','Phulkari','Gota Patti','Ilkal','Dharwad','Suf','Rabari','Zardozi'],
+    datasets:[{
+      data: dView.length ? dView.map(d=>d.cnt) : [3,2,2,1,1,1,1,1,1,1],
+      backgroundColor: COLORS,
+      borderColor: DARK, borderWidth: 2
+    }]
+  },
+  options:{
+    plugins:{ legend:{ ...legend, position:'right' } },
+    layout:{ padding:10 }
+  }
+});
+
+// 3. Saved by state doughnut — distinct per state
+new Chart(document.getElementById('chartSaved'), {
+  type:'doughnut',
+  data:{
+    labels: sByS.length ? sByS.map(d=>d.state) :
+      ['Karnataka','Gujarat','Uttar Pradesh','Punjab','Rajasthan'],
+    datasets:[{
+      data: sByS.length ? sByS.map(d=>d.cnt) : [1,1,1,1,1],
+      backgroundColor:['#0d9488','#f59e0b','#8b5cf6','#ef4444','#10b981'],
+      borderColor: DARK, borderWidth:2
+    }]
+  },
+  options:{
+    plugins:{ legend:{ ...legend, position:'bottom' } },
+    cutout:'65%'
+  }
+});
+
+// 4. Downloads — multi-color bars
+new Chart(document.getElementById('chartDownloads'), {
+  type:'bar',
+  data:{
+    labels: dls.length ? dls.map(d=>d.design_name) : ['No downloads'],
+    datasets:[{ label:'Downloads',
+      data: dls.length ? dls.map(d=>d.cnt) : [0],
+      backgroundColor: dls.length ? dls.map((_,i)=>COLORS[i%COLORS.length]) : ['#0d9488'],
+      borderColor: dls.length ? dls.map((_,i)=>COLORS[i%COLORS.length]) : ['#0d9488'],
+      borderWidth:1.5, borderRadius:6 }]
+  },
+  options:{ plugins:{ legend }, scales }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1234 @@
+{% extends 'base.html' %}
+{% block title %}Simulate {{ design.name }} - RESS{% endblock %}
+{% block content %}
+<div class="app-layout">
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-logo">✦ RESS</span>
+            <button class="sidebar-close" id="sidebarClose"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{{ url_for('design_selection') }}" class="sidebar-link"><i class="fas fa-palette"></i> Browse Designs</a>
+            <a href="{{ url_for('favorites') }}" class="sidebar-link"><i class="fas fa-heart"></i> Favorites</a>
+            <a href="{{ url_for('saved_designs') }}" class="sidebar-link"><i class="fas fa-bookmark"></i> Saved Designs</a>
+            <a href="{{ url_for('logout') }}" class="sidebar-link logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <button class="tb-toggle" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+            <a href="{{ url_for('design_details', design_id=design.id) }}" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <div class="breadcrumb">
+                <a href="{{ url_for('design_selection') }}">Designs</a>
+                <span>›</span>
+                <a href="{{ url_for('design_details', design_id=design.id) }}">{{ design.name }}</a>
+                <span>›</span>
+                <span style="color:var(--t)">Simulation</span>
+            </div>
+        </div>
+
+        <div class="dashboard-body">
+            <div class="sim-layout">
+
+                <!-- ══ LEFT CONTROLS ══ -->
+                <div class="sim-panel">
+                    <div class="sim-panel-head">
+                        <i class="fas fa-sliders-h"></i> Controls
+                    </div>
+
+                    <!-- Upload -->
+                    <div class="sim-section">
+                        <div class="sim-label">Fabric Image</div>
+                        <div class="drop-zone" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Click or drag &amp; drop</span>
+                            <small>Images only: JPG · PNG · WEBP</small>
+                            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp">
+                        </div>
+                        <button class="btn-sample" id="btnSample">
+                            <i class="fas fa-tshirt"></i> Use Sample Fabric
+                        </button>
+                    </div>
+
+                    <!-- Thread Color -->
+                    <div class="sim-section">
+                        <div class="sim-label">Thread Color</div>
+                        <div class="color-row">
+                            <button class="clr active" data-c="#0d9488" style="background:#0d9488" title="Gold"></button>
+                            <button class="clr" data-c="#c0392b" style="background:#c0392b" title="Red"></button>
+                            <button class="clr" data-c="#2471a3" style="background:#2471a3" title="Blue"></button>
+                            <button class="clr" data-c="#1e8449" style="background:#1e8449" title="Green"></button>
+                            <button class="clr" data-c="#6c0e23" style="background:#6c0e23" title="Maroon"></button>
+                            <button class="clr" data-c="#f0f0f0" style="background:#f0f0f0;border:1px solid #555" title="White"></button>
+                        </div>
+                    </div>
+
+                    <!-- Opacity -->
+                    <div class="sim-section">
+                        <div class="sim-label">
+                            Opacity <span class="sim-val" id="lblOpacity">70%</span>
+                        </div>
+                        <input type="range" class="sim-range" id="rngOpacity" min="10" max="100" value="70">
+                    </div>
+
+                    <!-- Size -->
+                    <div class="sim-section">
+                        <div class="sim-label">
+                            Pattern Size <span class="sim-val" id="lblSize">Medium</span>
+                        </div>
+                        <input type="range" class="sim-range" id="rngSize" min="1" max="5" value="3">
+                    </div>
+
+                    <!-- Blend -->
+                    <div class="sim-section">
+                        <div class="sim-label">Blend Mode</div>
+                        <select class="sim-sel" id="selBlend">
+                            <option value="source-over" selected>Normal</option>
+                            <option value="multiply">Multiply</option>
+                            <option value="overlay">Overlay</option>
+                            <option value="screen">Screen</option>
+                            <option value="hard-light">Hard Light</option>
+                        </select>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="sim-actions">
+                        <button class="btn-act" id="btnDownload">
+                            <i class="fas fa-download"></i> Download
+                        </button>
+                        <button class="btn-act" id="btnSave">
+                            <i class="fas fa-bookmark"></i> Save Design
+                        </button>
+                        <button class="btn-reset" id="btnReset">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+
+                    <!-- Design badge -->
+                    <div class="sim-badge">
+                        <div class="sim-badge-name">{{ design.name }}</div>
+                        <div class="sim-badge-state">{{ design.state }}</div>
+                    </div>
+                </div>
+
+                <!-- ══ RIGHT CANVAS ══ -->
+                <div class="sim-canvas-wrap">
+
+                    <!-- Tabs -->
+                    <div class="sim-tabs">
+                        <button class="sim-tab active" id="tabLive">
+                            <i class="fas fa-eye"></i> Live Preview
+                        </button>
+                        <button class="sim-tab" id="tabBA">
+                            <i class="fas fa-columns"></i> Before vs After
+                        </button>
+                    </div>
+
+                    <!-- Live view -->
+                    <div id="viewLive" class="sim-view">
+                        <!-- Placeholder shown before fabric loaded -->
+                        <div id="simPlaceholder" class="sim-placeholder">
+                            <canvas id="phCanvas" width="680" height="460"></canvas>
+                            <div class="ph-overlay">
+                                <i class="fas fa-tshirt"></i>
+                                <h4>{{ design.name }} Preview</h4>
+                                <p>Upload a fabric image or use the sample to begin simulation</p>
+                                <button class="btn-ph-sample" id="btnPhSample">
+                                    <i class="fas fa-magic"></i> Try Sample Fabric
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Main result canvas -->
+                        <canvas id="simCanvas" width="680" height="460" style="display:none;border-radius:8px;max-width:100%;"></canvas>
+                    </div>
+
+                    <!-- Before / After view -->
+                    <div id="viewBA" class="sim-view" style="display:none">
+                        <div class="ba-wrap">
+                            <div class="ba-col">
+                                <div class="ba-tag">Original</div>
+                                <canvas id="cnvBefore" width="310" height="300"></canvas>
+                            </div>
+                            <div class="ba-arrow"><i class="fas fa-arrow-right"></i></div>
+                            <div class="ba-col">
+                                <div class="ba-tag">{{ design.name }} Applied</div>
+                                <canvas id="cnvAfter" width="310" height="300"></canvas>
+                            </div>
+                        </div>
+                        <p id="baHint" class="ba-hint">Load a fabric image to see the comparison</p>
+                    </div>
+
+                    <!-- Status bar -->
+                    <div class="sim-statusbar">
+                        <span><i class="fas fa-palette"></i> {{ design.name }}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> {{ design.state }}</span>
+                        <span><i class="fas fa-tshirt"></i> {{ design.fabric_type.split(',')[0] }}</span>
+                        <span id="simStatus" class="sstatus ok">
+                            <i class="fas fa-circle"></i> Ready
+                        </span>
+                    </div>
+                </div>
+
+            </div><!-- /sim-layout -->
+        </div>
+    </main>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     SIMULATION STYLES
+══════════════════════════════════════════════ -->
+<style>
+.sim-layout{display:grid;grid-template-columns:270px 1fr;gap:20px;align-items:start}
+/* Panel */
+.sim-panel{background:var(--black2);border:1px solid rgba(13,148,136,.18);border-radius:12px;padding:18px;position:sticky;top:72px}
+.sim-panel-head{font-family:var(--font-display);font-size:17px;color:var(--gold-light);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.sim-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.05)}
+.sim-section:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.sim-label{font-size:11px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;justify-content:space-between}
+.sim-val{color:#fff;font-weight:700;text-transform:none;letter-spacing:0;font-size:12px}
+/* Drop zone */
+.drop-zone{border:2px dashed rgba(13,148,136,.4);border-radius:8px;padding:18px 10px;text-align:center;cursor:pointer;transition:.3s;position:relative;overflow:hidden}
+.drop-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop-zone i{font-size:24px;color:var(--gold);display:block;margin-bottom:6px}
+.drop-zone span{font-size:12px;color:var(--gray);display:block;margin-bottom:3px}
+.drop-zone small{font-size:10px;color:rgba(255,255,255,.2)}
+.drop-zone:hover,.drop-zone.over{border-color:var(--gold);background:rgba(13,148,136,.07)}
+.btn-sample{width:100%;margin-top:8px;padding:9px;background:rgba(13,148,136,.1);border:1px solid rgba(13,148,136,.25);border-radius:7px;color:var(--gold);font-size:12px;font-weight:600;cursor:pointer;transition:.3s;display:flex;align-items:center;justify-content:center;gap:7px}
+.btn-sample:hover{background:rgba(13,148,136,.22)}
+/* Colors */
+.color-row{display:flex;gap:8px;flex-wrap:wrap}
+.clr{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:.25s;flex-shrink:0}
+.clr:hover{transform:scale(1.2)}
+.clr.active{border:3px solid #fff;box-shadow:0 0 0 2px var(--gold)}
+/* Range */
+.sim-range{width:100%;accent-color:var(--gold);cursor:pointer;height:5px;margin-top:4px}
+/* Select */
+.sim-sel{width:100%;padding:9px 12px;border-radius:7px;background:rgba(255,255,255,.05);border:1px solid rgba(13,148,136,.2);color:#fff;font-size:13px;cursor:pointer;outline:none}
+.sim-sel option{background:#1a1208}
+/* Action buttons */
+.sim-actions{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.btn-act{padding:10px 14px;background:rgba(13,148,136,.1);color:var(--gold);border:1px solid rgba(13,148,136,.25);border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:8px}
+.btn-act:hover{background:var(--gold);color:#000}
+.btn-reset{padding:10px 14px;color:var(--gray);border:1px solid rgba(255,255,255,.1);border-radius:7px;font-size:12px;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:8px;background:none}
+.btn-reset:hover{color:#e74c3c;border-color:#e74c3c}
+.sim-badge{padding-top:12px;border-top:1px solid rgba(13,148,136,.12)}
+.sim-badge-name{font-family:var(--font-display);font-size:15px;color:var(--gold-light)}
+.sim-badge-state{font-size:10px;color:var(--gray);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+/* Canvas area */
+.sim-canvas-wrap{background:var(--black2);border:1px solid rgba(13,148,136,.12);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.sim-tabs{display:flex;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(13,148,136,.1)}
+.sim-tab{padding:12px 20px;font-size:13px;font-weight:600;color:var(--gray);border:none;border-bottom:2px solid transparent;background:none;cursor:pointer;transition:.3s;display:flex;align-items:center;gap:7px}
+.sim-tab:hover{color:var(--gold-light)}
+.sim-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.sim-view{padding:16px;flex:1}
+/* Placeholder */
+.sim-placeholder{position:relative;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#phCanvas{display:block;border-radius:8px;max-width:100%}
+.ph-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:rgba(13,10,5,.72);padding:20px}
+.ph-overlay i{font-size:46px;color:rgba(13,148,136,.4);margin-bottom:14px}
+.ph-overlay h4{font-family:var(--font-display);font-size:22px;color:var(--gold-light);margin-bottom:8px}
+.ph-overlay p{color:var(--gray);font-size:13px;max-width:320px;margin:0 auto 18px;line-height:1.6}
+.btn-ph-sample{padding:11px 28px;background:var(--gold);color:#000;border-radius:40px;font-weight:700;font-size:13px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:8px;transition:.3s}
+.btn-ph-sample:hover{background:var(--gold-light)}
+/* Before / After */
+.ba-wrap{display:grid;grid-template-columns:1fr 40px 1fr;gap:10px;align-items:center}
+.ba-col{display:flex;flex-direction:column;align-items:center;gap:8px}
+.ba-tag{font-size:11px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+#cnvBefore,#cnvAfter{border-radius:8px;width:100%;height:auto;border:1px solid rgba(13,148,136,.12)}
+.ba-arrow{display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:20px}
+.ba-hint{text-align:center;color:rgba(255,255,255,.2);font-size:12px;margin-top:12px}
+/* Statusbar */
+.sim-statusbar{display:flex;align-items:center;gap:16px;padding:10px 16px;background:rgba(0,0,0,.3);border-top:1px solid rgba(13,148,136,.08);font-size:12px;color:var(--gray);flex-wrap:wrap}
+.sim-statusbar span{display:flex;align-items:center;gap:5px}
+.sim-statusbar i{color:var(--gold);font-size:11px}
+.sstatus{margin-left:auto;font-weight:600}
+.sstatus.ok{color:#2ecc71}
+.sstatus.busy{color:var(--gold)}
+.sstatus.err{color:#e74c3c}
+@media(max-width:900px){.sim-layout{grid-template-columns:1fr}.sim-panel{position:static}.ba-wrap{grid-template-columns:1fr}.ba-arrow{display:none}}
+</style>
+
+<!-- ══════════════════════════════════════════════
+     SIMULATION ENGINE
+══════════════════════════════════════════════ -->
+<script>
+const DESIGN_NAME = "{{ design.name }}";
+const DESIGN_ID   = "{{ design.id }}";
+const DESIGN_KEY  = "{{ design.name | lower | replace(' ', '_') }}";
+
+/* ── MAP every design name to a pattern key ── */
+const PATTERN_MAP = {
+    /* Karnataka */
+    'kasuti':                    'kasuti',
+    'ilkal_weaving_embroidery':  'ilkal',
+    'dharwad_embroidery':        'dharwad',
+    /* Gujarat */
+    'kutch_embroidery':          'kutch',
+    'suf_embroidery':            'suf',
+    'rabari_embroidery':         'rabari',
+    /* Uttar Pradesh */
+    'chikankari':                'chikankari',
+    'zardozi_embroidery':        'zardozi',
+    'mukaish_work':              'mukaish',
+    /* Punjab */
+    'phulkari':                  'phulkari',
+    'bagh_embroidery':           'bagh',
+    'chope_embroidery':          'chope',
+    /* Rajasthan */
+    'gota_patti':                'gota_patti',
+    'zari_embroidery_rajasthan': 'zari',
+    'barmer_applique':           'barmer',
+};
+const PKEY = PATTERN_MAP[DESIGN_KEY] || DESIGN_KEY;
+
+const SIZE_LABELS = {1:'Tiny', 2:'Small', 3:'Medium', 4:'Large', 5:'X-Large'};
+const SIZE_PX     = {1:24, 2:38, 3:56, 4:76, 5:100};
+
+/* ── STATE ── */
+let fabricImg   = null;
+let color       = '#0d9488';
+let opacity     = 0.70;
+let cellSize    = 56;
+let blend       = 'source-over';
+let rendering   = false;
+
+/* ── DOM ── */
+const simCanvas  = document.getElementById('simCanvas');
+const simCtx     = simCanvas.getContext('2d');
+const cnvBefore  = document.getElementById('cnvBefore');
+const cnvAfter   = document.getElementById('cnvAfter');
+const bCtx       = cnvBefore.getContext('2d');
+const aCtx       = cnvAfter.getContext('2d');
+const phCanvas   = document.getElementById('phCanvas');
+const phCtx      = phCanvas.getContext('2d');
+const placeholder= document.getElementById('simPlaceholder');
+const statusEl   = document.getElementById('simStatus');
+
+/* ── DRAW ANIMATED PLACEHOLDER ── */
+(function drawPlaceholder(){
+    phCtx.fillStyle = '#16100a';
+    phCtx.fillRect(0, 0, phCanvas.width, phCanvas.height);
+    // Draw the design's preview pattern at low opacity
+    phCtx.globalAlpha = 0.18;
+    phCtx.strokeStyle = '#0d9488';
+    phCtx.fillStyle   = '#0d9488';
+    _drawPattern(phCtx, PKEY, '#0d9488', 60, phCanvas.width, phCanvas.height);
+    phCtx.globalAlpha = 1;
+})();
+
+/* ── STATUS HELPER ── */
+function setStatus(txt, type){
+    statusEl.textContent = txt;
+    statusEl.className   = 'sstatus ' + (type || 'ok');
+    statusEl.innerHTML   = `<i class="fas fa-circle"></i> ${txt}`;
+}
+
+/* ══════════════════════════════════════════════
+   SAMPLE FABRIC  (generated on canvas — no CORS)
+══════════════════════════════════════════════ */
+function makeSampleFabric(){
+    const fc  = document.createElement('canvas');
+    fc.width  = 680; fc.height = 460;
+    const fx  = fc.getContext('2d');
+
+    // Fabric base colour per design
+    const bases = {
+        kasuti:'#f7efd9', kutch_embroidery:'#fef3e0',
+        chikankari:'#f9f7f3', phulkari:'#f5e6cc', gota_patti:'#faebd4'
+    };
+    fx.fillStyle = bases[DESIGN_KEY] || '#f5efe0';
+    fx.fillRect(0, 0, fc.width, fc.height);
+
+    // Horizontal weft threads
+    for(let y = 0; y < fc.height; y += 3){
+        fx.fillStyle = y % 6 === 0 ? 'rgba(0,0,0,0.045)' : 'rgba(255,255,255,0.06)';
+        fx.fillRect(0, y, fc.width, 1.5);
+    }
+    // Vertical warp threads
+    for(let x = 0; x < fc.width; x += 3){
+        fx.fillStyle = x % 6 === 0 ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.04)';
+        fx.fillRect(x, 0, 1.5, fc.height);
+    }
+    // Subtle vignette
+    const vg = fx.createRadialGradient(340, 230, 80, 340, 230, 420);
+    vg.addColorStop(0, 'rgba(0,0,0,0)');
+    vg.addColorStop(1, 'rgba(0,0,0,0.10)');
+    fx.fillStyle = vg;
+    fx.fillRect(0, 0, fc.width, fc.height);
+
+    const img = new Image();
+    img.onload = () => { fabricImg = img; showCanvas(); render(); };
+    img.src    = fc.toDataURL();
+}
+
+/* ── SHOW CANVAS ── */
+function showCanvas(){
+    placeholder.style.display = 'none';
+    simCanvas.style.display   = 'block';
+}
+
+/* ══════════════════════════════════════════════
+   MAIN RENDER
+══════════════════════════════════════════════ */
+function render(){
+    if(!fabricImg || rendering) return;
+    rendering = true;
+    setStatus('Rendering…', 'busy');
+
+    requestAnimationFrame(() => {
+        // 1. Draw fabric
+        simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+        simCtx.globalAlpha              = 1;
+        simCtx.globalCompositeOperation = 'source-over';
+        simCtx.drawImage(fabricImg, 0, 0, simCanvas.width, simCanvas.height);
+
+        // 2. Embroidery overlay
+        simCtx.globalAlpha              = opacity;
+        simCtx.globalCompositeOperation = blend;
+        _drawPattern(simCtx, PKEY, color, cellSize, simCanvas.width, simCanvas.height);
+
+        // 3. Reset state
+        simCtx.globalAlpha              = 1;
+        simCtx.globalCompositeOperation = 'source-over';
+
+        rendering = false;
+        setStatus('Live Preview', 'ok');
+
+        // Sync B/A if that tab is open
+        if(document.getElementById('viewBA').style.display !== 'none') syncBA();
+    });
+}
+
+/* ══════════════════════════════════════════════
+   PATTERN DISPATCHER
+══════════════════════════════════════════════ */
+function _drawPattern(cx, key, col, cell, W, H){
+    cx.strokeStyle = col;
+    cx.fillStyle   = col;
+    const lw       = Math.max(1, cell * 0.04);
+    cx.lineWidth   = lw;
+
+    switch(key){
+        case 'kasuti':      _kasuti(cx, col, cell, W, H);     break;
+        case 'ilkal':       _ilkal(cx, col, cell, W, H);      break;
+        case 'dharwad':     _dharwad(cx, col, cell, W, H);    break;
+        case 'kutch':       _kutch(cx, col, cell, W, H);      break;
+        case 'suf':         _suf(cx, col, cell, W, H);        break;
+        case 'rabari':      _rabari(cx, col, cell, W, H);     break;
+        case 'chikankari':  _chikankari(cx, col, cell, W, H); break;
+        case 'zardozi':     _zardozi(cx, col, cell, W, H);    break;
+        case 'mukaish':     _mukaish(cx, col, cell, W, H);    break;
+        case 'phulkari':    _phulkari(cx, col, cell, W, H);   break;
+        case 'bagh':        _bagh(cx, col, cell, W, H);       break;
+        case 'chope':       _chope(cx, col, cell, W, H);      break;
+        case 'gota_patti':  _gotaPatti(cx, col, cell, W, H);  break;
+        case 'zari':        _zari(cx, col, cell, W, H);       break;
+        case 'barmer':      _barmer(cx, col, cell, W, H);     break;
+        default:            _kasuti(cx, col, cell, W, H);
+    }
+}
+
+/* ──────────────────────────────────────────
+   1. KASUTI — Diamond + Cross geometric grid
+   Karnataka  |  Silk sarees
+────────────────────────────────────────── */
+function _kasuti(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1, cell * 0.045);
+    for(let gx = cell / 2; gx < W; gx += cell){
+        for(let gy = cell / 2; gy < H; gy += cell){
+            const r = cell * 0.40;
+            cx.strokeStyle = col; cx.fillStyle = col;
+
+            // Outer diamond
+            cx.beginPath();
+            cx.moveTo(gx,     gy - r);
+            cx.lineTo(gx + r, gy    );
+            cx.lineTo(gx,     gy + r);
+            cx.lineTo(gx - r, gy    );
+            cx.closePath();
+            cx.stroke();
+
+            // Inner diamond (half size)
+            cx.beginPath();
+            cx.moveTo(gx,       gy - r*0.5);
+            cx.lineTo(gx + r*0.5, gy      );
+            cx.lineTo(gx,       gy + r*0.5);
+            cx.lineTo(gx - r*0.5, gy      );
+            cx.closePath();
+            cx.stroke();
+
+            // Cross lines
+            cx.beginPath();
+            cx.moveTo(gx - r*0.5, gy); cx.lineTo(gx + r*0.5, gy);
+            cx.moveTo(gx, gy - r*0.5); cx.lineTo(gx, gy + r*0.5);
+            cx.stroke();
+
+            // 4 corner dots at diamond tips
+            [0, Math.PI/2, Math.PI, 3*Math.PI/2].forEach(a => {
+                cx.beginPath();
+                cx.arc(gx + Math.cos(a)*r, gy + Math.sin(a)*r, r*0.10, 0, Math.PI*2);
+                cx.fill();
+            });
+
+            // Center dot
+            cx.beginPath();
+            cx.arc(gx, gy, r*0.13, 0, Math.PI*2);
+            cx.fill();
+        }
+    }
+}
+
+/* ──────────────────────────────────────────
+   2. KUTCH — Shisha mirror circles + spokes
+   Gujarat  |  Vibrant geometric + mirrors
+────────────────────────────────────────── */
+function _kutch(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1, cell * 0.045);
+    for(let gx = cell / 2; gx < W; gx += cell){
+        for(let gy = cell / 2; gy < H; gy += cell){
+            const r = cell * 0.38;
+            cx.strokeStyle = col; cx.fillStyle = col;
+
+            // Outer ring
+            cx.beginPath();
+            cx.arc(gx, gy, r, 0, Math.PI*2);
+            cx.stroke();
+
+            // 8 spokes radiating outward from mid-ring
+            for(let i = 0; i < 8; i++){
+                const a = (i / 8) * Math.PI * 2;
+                cx.beginPath();
+                cx.moveTo(gx + Math.cos(a)*r*0.48, gy + Math.sin(a)*r*0.48);
+                cx.lineTo(gx + Math.cos(a)*r,      gy + Math.sin(a)*r);
+                cx.stroke();
+            }
+
+            // Mid ring
+            cx.beginPath();
+            cx.arc(gx, gy, r * 0.48, 0, Math.PI*2);
+            cx.stroke();
+
+            // Mirror — filled center circle
+            cx.beginPath();
+            cx.arc(gx, gy, r * 0.24, 0, Math.PI*2);
+            cx.fill();
+
+            // 4 tiny corner diamonds between cells
+            [[cell*0.5, 0],[0, cell*0.5],[-cell*0.5, 0],[0,-cell*0.5]].forEach(([ox,oy])=>{
+                const dr = cell * 0.08;
+                cx.beginPath();
+                cx.moveTo(gx+ox,      gy+oy-dr);
+                cx.lineTo(gx+ox+dr,   gy+oy);
+                cx.lineTo(gx+ox,      gy+oy+dr);
+                cx.lineTo(gx+ox-dr,   gy+oy);
+                cx.closePath();
+                cx.fill();
+            });
+        }
+    }
+}
+
+/* ──────────────────────────────────────────
+   3. CHIKANKARI — Delicate shadow-work florals
+   Uttar Pradesh  |  White-on-white muslin
+────────────────────────────────────────── */
+function _chikankari(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(0.8, cell * 0.028);
+    const step = cell * 1.6;
+    for(let gx = step*0.5; gx < W; gx += step){
+        for(let gy = step*0.5; gy < H; gy += step){
+            const r = cell * 0.44;
+            cx.strokeStyle = col; cx.fillStyle = col;
+
+            // 6 petals — ellipses rotated around center
+            for(let i = 0; i < 6; i++){
+                const a = (i / 6) * Math.PI * 2;
+                cx.save();
+                cx.translate(gx + Math.cos(a)*r*0.52, gy + Math.sin(a)*r*0.52);
+                cx.rotate(a);
+                cx.beginPath();
+                cx.ellipse(0, 0, r*0.17, r*0.44, 0, 0, Math.PI*2);
+                cx.stroke();
+                cx.restore();
+            }
+
+            // Jali (net) dots between petals
+            for(let i = 0; i < 6; i++){
+                const a = (i / 6) * Math.PI * 2 + Math.PI / 6;
+                cx.beginPath();
+                cx.arc(gx + Math.cos(a)*r*0.88, gy + Math.sin(a)*r*0.88, r*0.055, 0, Math.PI*2);
+                cx.fill();
+            }
+
+            // Outer circle outline (Tepchi running stitch ring)
+            cx.setLineDash([r*0.18, r*0.12]);
+            cx.beginPath();
+            cx.arc(gx, gy, r*1.05, 0, Math.PI*2);
+            cx.stroke();
+            cx.setLineDash([]);
+
+            // Murri centre knot
+            cx.beginPath();
+            cx.arc(gx, gy, r*0.12, 0, Math.PI*2);
+            cx.fill();
+        }
+    }
+}
+
+/* ──────────────────────────────────────────
+   4. PHULKARI — Bold geometric flower fills
+   Punjab  |  Silk floss on khaddar cotton
+────────────────────────────────────────── */
+function _phulkari(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1.5, cell * 0.058);
+    for(let gx = cell / 2; gx < W; gx += cell){
+        for(let gy = cell / 2; gy < H; gy += cell){
+            const r = cell * 0.42;
+            cx.strokeStyle = col; cx.fillStyle = col;
+
+            // 8 bold petal lines from center to edge
+            for(let i = 0; i < 8; i++){
+                const a = (i / 8) * Math.PI * 2;
+                cx.beginPath();
+                cx.moveTo(gx, gy);
+                cx.lineTo(gx + Math.cos(a)*r, gy + Math.sin(a)*r);
+                cx.stroke();
+            }
+
+            // Outer circle
+            cx.beginPath();
+            cx.arc(gx, gy, r, 0, Math.PI*2);
+            cx.stroke();
+
+            // Mid circle
+            cx.beginPath();
+            cx.arc(gx, gy, r*0.52, 0, Math.PI*2);
+            cx.stroke();
+
+            // Filled center disc
+            cx.beginPath();
+            cx.arc(gx, gy, r*0.24, 0, Math.PI*2);
+            cx.fill();
+
+            // Small square accents at petal tips (diagonal)
+            for(let i = 0; i < 4; i++){
+                const a = (i / 4) * Math.PI * 2 + Math.PI/8;
+                const tx = gx + Math.cos(a)*r;
+                const ty = gy + Math.sin(a)*r;
+                const s  = r * 0.14;
+                cx.fillRect(tx - s, ty - s, s*2, s*2);
+            }
+        }
+    }
+}
+
+/* ──────────────────────────────────────────
+   5. GOTA PATTI — Gold ribbon applique flowers
+   Rajasthan  |  Silk / Georgette royal wear
+────────────────────────────────────────── */
+function _gotaPatti(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1.5, cell * 0.05);
+    const step = cell * 1.9;
+    for(let gx = step*0.5; gx < W; gx += step){
+        for(let gy = step*0.5; gy < H; gy += step){
+            const r = cell * 0.46;
+            cx.strokeStyle = col; cx.fillStyle = col;
+
+            // 5-petal ribbon flower
+            for(let i = 0; i < 5; i++){
+                const a  = (i / 5) * Math.PI * 2 - Math.PI/2;
+                const px = gx + Math.cos(a) * r * 0.58;
+                const py = gy + Math.sin(a) * r * 0.58;
+                cx.save();
+                cx.translate(px, py);
+                cx.rotate(a + Math.PI/2);
+                // Ribbon petal — outer outline
+                cx.beginPath();
+                cx.ellipse(0, 0, r*0.30, r*0.18, 0, 0, Math.PI*2);
+                cx.stroke();
+                // Ribbon fold crease (horizontal line through center)
+                cx.beginPath();
+                cx.moveTo(-r*0.30, 0); cx.lineTo(r*0.30, 0);
+                cx.stroke();
+                cx.restore();
+            }
+
+            // Decorative outer ring
+            cx.beginPath();
+            cx.arc(gx, gy, r * 1.08, 0, Math.PI*2);
+            cx.stroke();
+
+            // Gold center disc
+            cx.beginPath();
+            cx.arc(gx, gy, r * 0.22, 0, Math.PI*2);
+            cx.fill();
+
+            // 10 tiny zardozi dots around center
+            for(let i = 0; i < 10; i++){
+                const a = (i / 10) * Math.PI * 2;
+                cx.beginPath();
+                cx.arc(gx + Math.cos(a)*r*0.42, gy + Math.sin(a)*r*0.42, r*0.045, 0, Math.PI*2);
+                cx.fill();
+            }
+
+            // Small diamonds between petals
+            for(let i = 0; i < 5; i++){
+                const a  = ((i + 0.5) / 5) * Math.PI * 2 - Math.PI/2;
+                const px = gx + Math.cos(a)*r*1.08;
+                const py = gy + Math.sin(a)*r*1.08;
+                const dr = r * 0.09;
+                cx.beginPath();
+                cx.moveTo(px, py-dr); cx.lineTo(px+dr, py);
+                cx.lineTo(px, py+dr); cx.lineTo(px-dr, py);
+                cx.closePath(); cx.fill();
+            }
+        }
+    }
+}
+
+/* ══════════════════════════════════════════════
+   BEFORE / AFTER SYNC
+══════════════════════════════════════════════ */
+function syncBA(){
+    if(!fabricImg){ return; }
+    document.getElementById('baHint').style.display = 'none';
+
+    // Before — plain fabric
+    bCtx.clearRect(0, 0, cnvBefore.width, cnvBefore.height);
+    bCtx.globalAlpha              = 1;
+    bCtx.globalCompositeOperation = 'source-over';
+    bCtx.drawImage(fabricImg, 0, 0, cnvBefore.width, cnvBefore.height);
+
+    // After — fabric + pattern
+    aCtx.clearRect(0, 0, cnvAfter.width, cnvAfter.height);
+    aCtx.globalAlpha              = 1;
+    aCtx.globalCompositeOperation = 'source-over';
+    aCtx.drawImage(fabricImg, 0, 0, cnvAfter.width, cnvAfter.height);
+
+    // Scale cell to the smaller canvas proportionally
+    const ratio    = cnvAfter.width / simCanvas.width;
+    const miniCell = Math.max(14, cellSize * ratio);
+    aCtx.globalAlpha              = opacity;
+    aCtx.globalCompositeOperation = blend;
+    _drawPattern(aCtx, PKEY, color, miniCell, cnvAfter.width, cnvAfter.height);
+    aCtx.globalAlpha              = 1;
+    aCtx.globalCompositeOperation = 'source-over';
+}
+
+/* ══════════════════════════════════════════════
+   FILE UPLOAD
+══════════════════════════════════════════════ */
+const dropZone  = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', e => loadImageFile(e.target.files[0]));
+
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('over');
+    loadImageFile(e.dataTransfer.files[0]);
+});
+
+function loadImageFile(file){
+    const ALLOWED = ['image/jpeg','image/png','image/webp'];
+    if(!file){return;}
+    if(!ALLOWED.includes(file.type)){
+        // Show error message below drop zone
+        let errMsg = document.getElementById('fileErrMsg');
+        if(!errMsg){
+            errMsg = document.createElement('div');
+            errMsg.id = 'fileErrMsg';
+            errMsg.style.cssText = `
+                color:#e74c3c;
+                background:rgba(231,76,60,0.12);
+                border:1px solid rgba(231,76,60,0.35);
+                border-radius:7px;
+                padding:9px 14px;
+                font-size:12px;
+                font-weight:600;
+                margin-top:8px;
+                text-align:center;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                gap:7px;
+            `;
+            dropZone.parentNode.insertBefore(errMsg, dropZone.nextSibling);
+        }
+        errMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ⚠ Only image files accepted (JPG, PNG, WEBP)`;
+        errMsg.style.display = 'flex';
+
+        // Auto hide after 4 seconds
+        setTimeout(() => { errMsg.style.display = 'none'; }, 4000);
+
+        fileInput.value = '';
+        return;
+    }
+
+    // Hide error if valid file selected
+    const errMsg = document.getElementById('fileErrMsg');
+    if(errMsg) errMsg.style.display = 'none';
+    setStatus('Loading…', 'busy');
+    const reader = new FileReader();
+    reader.onload = ev => {
+        const img = new Image();
+        img.onload  = () => { fabricImg = img; showCanvas(); render(); };
+        img.onerror = () => setStatus('Image failed to load', 'err');
+        img.src     = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+/* ══════════════════════════════════════════════
+   CONTROL EVENTS
+══════════════════════════════════════════════ */
+// Sample fabric
+document.getElementById('btnSample').addEventListener('click',   makeSampleFabric);
+document.getElementById('btnPhSample').addEventListener('click', makeSampleFabric);
+
+// Opacity
+document.getElementById('rngOpacity').addEventListener('input', function(){
+    opacity = this.value / 100;
+    document.getElementById('lblOpacity').textContent = this.value + '%';
+    render();
+});
+
+// Size
+document.getElementById('rngSize').addEventListener('input', function(){
+    const v = parseInt(this.value);
+    cellSize = SIZE_PX[v] || 56;
+    document.getElementById('lblSize').textContent = SIZE_LABELS[v] || 'Medium';
+    render();
+});
+
+// Blend
+document.getElementById('selBlend').addEventListener('change', function(){
+    blend = this.value;
+    render();
+});
+
+// Colors
+document.querySelectorAll('.clr').forEach(btn => {
+    btn.addEventListener('click', function(){
+        document.querySelectorAll('.clr').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        color = this.dataset.c;
+        render();
+    });
+});
+
+/* ══════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════ */
+document.getElementById('tabLive').addEventListener('click', function(){
+    this.classList.add('active');
+    document.getElementById('tabBA').classList.remove('active');
+    document.getElementById('viewLive').style.display = '';
+    document.getElementById('viewBA').style.display   = 'none';
+});
+
+document.getElementById('tabBA').addEventListener('click', function(){
+    this.classList.add('active');
+    document.getElementById('tabLive').classList.remove('active');
+    document.getElementById('viewLive').style.display = 'none';
+    document.getElementById('viewBA').style.display   = '';
+    syncBA();
+});
+
+/* ══════════════════════════════════════════════
+   DOWNLOAD
+══════════════════════════════════════════════ */
+document.getElementById('btnDownload').addEventListener('click', function(){
+    if(!fabricImg){
+        showToast('Please load a fabric image first', 'warning');
+        return;
+    }
+    const link      = document.createElement('a');
+    link.download   = 'RESS_' + DESIGN_NAME.replace(/ /g,'_') + '_simulation.png';
+    link.href       = simCanvas.toDataURL('image/png');
+    link.click();
+    // Track in DB
+    const fd = new FormData();
+    fd.append('design_name', DESIGN_NAME);
+    fetch('/track-download', { method:'POST', body:fd });
+    showToast('✓ Simulation image downloaded!', 'success');
+});
+
+/* ══════════════════════════════════════════════
+   SAVE DESIGN
+══════════════════════════════════════════════ */
+document.getElementById('btnSave').addEventListener('click', function(){
+    const fd = new FormData();
+    fd.append('design_id', DESIGN_ID);
+    fetch('/save-design', { method:'POST', body:fd })
+        .then(r  => r.json())
+        .then(data => showToast(data.message, data.success ? 'success' : 'warning'))
+        .catch(()  => showToast('Save failed — check connection', 'danger'));
+});
+
+/* ══════════════════════════════════════════════
+   RESET
+══════════════════════════════════════════════ */
+document.getElementById('btnReset').addEventListener('click', function(){
+    fabricImg = null;
+    simCanvas.style.display   = 'none';
+    placeholder.style.display = 'flex';
+    simCtx.clearRect(0, 0, simCanvas.width, simCanvas.height);
+    bCtx.clearRect(0, 0, cnvBefore.width, cnvBefore.height);
+    aCtx.clearRect(0, 0, cnvAfter.width, cnvAfter.height);
+    // Reset controls
+    document.getElementById('rngOpacity').value      = 70;
+    document.getElementById('rngSize').value         = 3;
+    document.getElementById('lblOpacity').textContent = '70%';
+    document.getElementById('lblSize').textContent    = 'Medium';
+    document.getElementById('selBlend').value         = 'source-over';
+    opacity  = 0.70; cellSize = 56; blend = 'source-over'; color = '#0d9488';
+    document.querySelectorAll('.clr').forEach((b,i) => b.classList.toggle('active', i===0));
+    fileInput.value = '';
+    setStatus('Ready', 'ok');
+    showToast('Simulation reset', 'info');
+});
+
+/* ── SIDEBAR ── */
+
+/* ═══════════════════════════════
+   NEW PATTERN FUNCTIONS
+═══════════════════════════════ */
+
+/* ILKAL — Stepped temple border + horizontal stripes */
+function _ilkal(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1, cell * 0.05);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    // Horizontal stripe bands
+    for(let y = 0; y < H; y += cell){
+        cx.fillStyle = col;
+        cx.globalAlpha *= 0.15;
+        cx.fillRect(0, y, W, cell * 0.18);
+        cx.globalAlpha /= 0.15;
+    }
+    // Temple step motifs
+    for(let gx = cell/2; gx < W; gx += cell){
+        for(let gy = cell/2; gy < H; gy += cell){
+            const r = cell * 0.38;
+            cx.strokeStyle = col;
+            // Temple gopuram stepped outline
+            cx.beginPath();
+            cx.moveTo(gx - r, gy + r);
+            cx.lineTo(gx - r, gy);
+            cx.lineTo(gx - r*0.6, gy);
+            cx.lineTo(gx - r*0.6, gy - r*0.4);
+            cx.lineTo(gx - r*0.3, gy - r*0.4);
+            cx.lineTo(gx - r*0.3, gy - r*0.7);
+            cx.lineTo(gx, gy - r);
+            cx.lineTo(gx + r*0.3, gy - r*0.7);
+            cx.lineTo(gx + r*0.3, gy - r*0.4);
+            cx.lineTo(gx + r*0.6, gy - r*0.4);
+            cx.lineTo(gx + r*0.6, gy);
+            cx.lineTo(gx + r, gy);
+            cx.lineTo(gx + r, gy + r);
+            cx.closePath();
+            cx.stroke();
+            // Center dot
+            cx.beginPath(); cx.arc(gx, gy + r*0.3, r*0.1, 0, Math.PI*2); cx.fill();
+        }
+    }
+}
+
+/* DHARWAD — Jasmine floral + vine border */
+function _dharwad(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(0.8, cell * 0.03);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    const step = cell * 1.4;
+    for(let gx = step/2; gx < W; gx += step){
+        for(let gy = step/2; gy < H; gy += step){
+            const r = cell * 0.42;
+            // 8 petal jasmine
+            for(let i = 0; i < 8; i++){
+                const a = (i/8) * Math.PI * 2;
+                cx.save();
+                cx.translate(gx + Math.cos(a)*r*0.45, gy + Math.sin(a)*r*0.45);
+                cx.rotate(a);
+                cx.beginPath();
+                cx.ellipse(0, 0, r*0.12, r*0.35, 0, 0, Math.PI*2);
+                cx.stroke();
+                cx.restore();
+            }
+            // Vine connecting dots
+            for(let i = 0; i < 8; i++){
+                const a = (i/8)*Math.PI*2 + Math.PI/8;
+                cx.beginPath();
+                cx.arc(gx + Math.cos(a)*r*0.85, gy + Math.sin(a)*r*0.85, r*0.07, 0, Math.PI*2);
+                cx.fill();
+            }
+            // Center
+            cx.beginPath(); cx.arc(gx, gy, r*0.14, 0, Math.PI*2); cx.fill();
+        }
+    }
+}
+
+/* SUF — Pure triangular counting stitch grid */
+function _suf(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1, cell * 0.04);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    const h = cell * 0.866; // triangle height
+    for(let row = 0; row * h < H; row++){
+        for(let col2 = 0; col2 * cell < W; col2++){
+            const x = col2 * cell + (row % 2 === 0 ? 0 : cell/2);
+            const y = row * h;
+            // Upward triangle
+            cx.beginPath();
+            cx.moveTo(x, y + h);
+            cx.lineTo(x + cell/2, y);
+            cx.lineTo(x + cell, y + h);
+            cx.closePath();
+            cx.stroke();
+            // Small inner triangle
+            const m = 0.4;
+            cx.beginPath();
+            cx.moveTo(x + cell*m, y + h*m*1.5);
+            cx.lineTo(x + cell/2, y + h*m);
+            cx.lineTo(x + cell*(1-m), y + h*m*1.5);
+            cx.closePath();
+            cx.stroke();
+        }
+    }
+}
+
+/* RABARI — Bold chain border + animal silhouette dots */
+function _rabari(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1.5, cell * 0.055);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    for(let gx = cell/2; gx < W; gx += cell){
+        for(let gy = cell/2; gy < H; gy += cell){
+            const r = cell * 0.4;
+            // Bold outer square rotated 45deg
+            cx.beginPath();
+            cx.moveTo(gx, gy - r);
+            cx.lineTo(gx + r, gy);
+            cx.lineTo(gx, gy + r);
+            cx.lineTo(gx - r, gy);
+            cx.closePath();
+            cx.stroke();
+            // Inner bold square
+            cx.beginPath();
+            cx.rect(gx - r*0.42, gy - r*0.42, r*0.84, r*0.84);
+            cx.stroke();
+            // 4 corner mirror dots
+            [[gx,gy-r],[gx+r,gy],[gx,gy+r],[gx-r,gy]].forEach(([px,py])=>{
+                cx.beginPath(); cx.arc(px, py, r*0.12, 0, Math.PI*2); cx.fill();
+            });
+            // Center cross
+            cx.beginPath();
+            cx.moveTo(gx-r*0.3,gy); cx.lineTo(gx+r*0.3,gy);
+            cx.moveTo(gx,gy-r*0.3); cx.lineTo(gx,gy+r*0.3);
+            cx.stroke();
+        }
+    }
+}
+
+/* ZARDOZI — Raised 3D ornate medallion */
+function _zardozi(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(2, cell * 0.06);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    const step = cell * 2;
+    for(let gx = step/2; gx < W; gx += step){
+        for(let gy = step/2; gy < H; gy += step){
+            const r = cell * 0.7;
+            // Outer ornate ring
+            cx.beginPath(); cx.arc(gx, gy, r, 0, Math.PI*2); cx.stroke();
+            // 12 ornate petals
+            for(let i = 0; i < 12; i++){
+                const a = (i/12)*Math.PI*2;
+                const px = gx + Math.cos(a)*r*0.7;
+                const py = gy + Math.sin(a)*r*0.7;
+                cx.save();
+                cx.translate(px, py); cx.rotate(a);
+                cx.beginPath();
+                cx.ellipse(0, 0, r*0.12, r*0.22, 0, 0, Math.PI*2);
+                cx.stroke();
+                cx.restore();
+            }
+            // Mid decorative ring
+            cx.beginPath(); cx.arc(gx, gy, r*0.45, 0, Math.PI*2); cx.stroke();
+            // Stone center (filled)
+            cx.beginPath(); cx.arc(gx, gy, r*0.18, 0, Math.PI*2); cx.fill();
+            // 4 corner mini medallions
+            [[cell,0],[0,cell],[-cell,0],[0,-cell]].forEach(([ox,oy])=>{
+                cx.beginPath(); cx.arc(gx+ox, gy+oy, r*0.18, 0, Math.PI*2); cx.stroke();
+                cx.beginPath(); cx.arc(gx+ox, gy+oy, r*0.08, 0, Math.PI*2); cx.fill();
+            });
+        }
+    }
+}
+
+/* MUKAISH — Sparkling grid of metallic dots */
+function _mukaish(cx, col, cell, W, H){
+    cx.strokeStyle = col; cx.fillStyle = col;
+    const spacing = cell * 0.55;
+    for(let gx = spacing/2; gx < W; gx += spacing){
+        for(let gy = spacing/2; gy < H; gy += spacing){
+            const r = cell * 0.08;
+            // Flat metallic wire dot (star shape)
+            cx.lineWidth = Math.max(0.8, cell*0.025);
+            cx.beginPath(); cx.arc(gx, gy, r, 0, Math.PI*2); cx.fill();
+            // 4 tiny radiating lines (wire impression)
+            for(let i = 0; i < 4; i++){
+                const a = (i/4)*Math.PI*2;
+                cx.beginPath();
+                cx.moveTo(gx + Math.cos(a)*r*1.2, gy + Math.sin(a)*r*1.2);
+                cx.lineTo(gx + Math.cos(a)*r*2.8, gy + Math.sin(a)*r*2.8);
+                cx.stroke();
+            }
+        }
+    }
+    // Diagonal grid lines (fabric structure)
+    cx.lineWidth = Math.max(0.4, cell*0.015);
+    cx.globalAlpha *= 0.3;
+    for(let gx = 0; gx < W; gx += spacing){
+        cx.beginPath(); cx.moveTo(gx, 0); cx.lineTo(gx, H); cx.stroke();
+    }
+    for(let gy = 0; gy < H; gy += spacing){
+        cx.beginPath(); cx.moveTo(0, gy); cx.lineTo(W, gy); cx.stroke();
+    }
+    cx.globalAlpha /= 0.3;
+}
+
+/* BAGH — Dense full-coverage garden fill */
+function _bagh(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(1.5, cell * 0.05);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    // Dense small flowers covering all fabric
+    const s = cell * 0.6;
+    for(let gx = s/2; gx < W; gx += s){
+        for(let gy = s/2; gy < H; gy += s){
+            const r = s * 0.42;
+            // 6 petals (denser than phulkari)
+            for(let i = 0; i < 6; i++){
+                const a = (i/6)*Math.PI*2;
+                cx.beginPath();
+                cx.moveTo(gx, gy);
+                cx.lineTo(gx + Math.cos(a)*r, gy + Math.sin(a)*r);
+                cx.stroke();
+            }
+            // Rings
+            cx.beginPath(); cx.arc(gx, gy, r, 0, Math.PI*2); cx.stroke();
+            cx.beginPath(); cx.arc(gx, gy, r*0.45, 0, Math.PI*2); cx.stroke();
+            // Dense fill center
+            cx.beginPath(); cx.arc(gx, gy, r*0.2, 0, Math.PI*2); cx.fill();
+        }
+    }
+    // Extra fill layer — small diamonds between flowers
+    for(let gx = s; gx < W; gx += s){
+        for(let gy = s; gy < H; gy += s){
+            const r = s * 0.15;
+            cx.beginPath();
+            cx.moveTo(gx, gy-r); cx.lineTo(gx+r, gy);
+            cx.lineTo(gx, gy+r); cx.lineTo(gx-r, gy);
+            cx.closePath(); cx.fill();
+        }
+    }
+}
+
+/* CHOPE — Two-color chevron/diamond ceremonial */
+function _chope(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(2, cell * 0.065);
+    // Draw in two alternating colors (yellow + the selected color)
+    const col2 = '#c9a84c'; // ceremonial gold accent
+    for(let gx = cell/2; gx < W; gx += cell){
+        for(let gy = cell/2; gy < H; gy += cell){
+            const r = cell * 0.44;
+            // Outer chevron diamond in main color
+            cx.strokeStyle = col;
+            cx.beginPath();
+            cx.moveTo(gx, gy-r); cx.lineTo(gx+r, gy);
+            cx.lineTo(gx, gy+r); cx.lineTo(gx-r, gy);
+            cx.closePath(); cx.stroke();
+            // Inner chevron in accent color
+            cx.strokeStyle = col2;
+            cx.beginPath();
+            cx.moveTo(gx, gy-r*0.55); cx.lineTo(gx+r*0.55, gy);
+            cx.lineTo(gx, gy+r*0.55); cx.lineTo(gx-r*0.55, gy);
+            cx.closePath(); cx.stroke();
+            // Alternating fill dots
+            cx.fillStyle = (Math.floor(gx/cell + gy/cell) % 2 === 0) ? col : col2;
+            cx.beginPath(); cx.arc(gx, gy, r*0.15, 0, Math.PI*2); cx.fill();
+        }
+    }
+}
+
+/* ZARI — Gold thread couching with diamond grid */
+function _zari(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(2.5, cell * 0.07);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    // Bold diagonal grid (couching base)
+    cx.lineWidth = Math.max(1, cell * 0.03);
+    cx.globalAlpha *= 0.35;
+    for(let i = -H; i < W+H; i += cell*0.7){
+        cx.beginPath(); cx.moveTo(i, 0); cx.lineTo(i+H, H); cx.stroke();
+        cx.beginPath(); cx.moveTo(i, 0); cx.lineTo(i-H, H); cx.stroke();
+    }
+    cx.globalAlpha /= 0.35;
+    // Bold medallions at grid intersections
+    cx.lineWidth = Math.max(2.5, cell * 0.07);
+    const step = cell * 1.8;
+    for(let gx = step/2; gx < W; gx += step){
+        for(let gy = step/2; gy < H; gy += step){
+            const r = cell * 0.55;
+            // Outer ring
+            cx.beginPath(); cx.arc(gx, gy, r, 0, Math.PI*2); cx.stroke();
+            // 8 leaf petals
+            for(let i = 0; i < 8; i++){
+                const a = (i/8)*Math.PI*2;
+                cx.save();
+                cx.translate(gx + Math.cos(a)*r*0.6, gy + Math.sin(a)*r*0.6);
+                cx.rotate(a);
+                cx.beginPath();
+                cx.ellipse(0, 0, r*0.16, r*0.28, 0, 0, Math.PI*2);
+                cx.stroke();
+                cx.restore();
+            }
+            // Inner ring + filled stone
+            cx.beginPath(); cx.arc(gx, gy, r*0.35, 0, Math.PI*2); cx.stroke();
+            cx.beginPath(); cx.arc(gx, gy, r*0.15, 0, Math.PI*2); cx.fill();
+        }
+    }
+}
+
+/* BARMER APPLIQUE — Bold geometric fabric patches */
+function _barmer(cx, col, cell, W, H){
+    cx.lineWidth = Math.max(2, cell * 0.06);
+    cx.strokeStyle = col; cx.fillStyle = col;
+    for(let gx = cell/2; gx < W; gx += cell){
+        for(let gy = cell/2; gy < H; gy += cell){
+            const r = cell * 0.42;
+            // Bold filled square patch
+            cx.globalAlpha *= 0.2;
+            cx.fillRect(gx - r*0.7, gy - r*0.7, r*1.4, r*1.4);
+            cx.globalAlpha /= 0.2;
+            // Bold outline
+            cx.strokeRect(gx - r*0.7, gy - r*0.7, r*1.4, r*1.4);
+            // Diagonal crosses inside
+            cx.beginPath();
+            cx.moveTo(gx-r*0.7, gy-r*0.7); cx.lineTo(gx+r*0.7, gy+r*0.7);
+            cx.moveTo(gx+r*0.7, gy-r*0.7); cx.lineTo(gx-r*0.7, gy+r*0.7);
+            cx.stroke();
+            // Mirror circles at corners
+            [[gx-r*0.7,gy-r*0.7],[gx+r*0.7,gy-r*0.7],
+             [gx-r*0.7,gy+r*0.7],[gx+r*0.7,gy+r*0.7]].forEach(([px,py])=>{
+                cx.beginPath(); cx.arc(px, py, r*0.12, 0, Math.PI*2); cx.fill();
+            });
+        }
+    }
+}
+
+document.getElementById('sidebarToggle').addEventListener('click', () => document.getElementById('sidebar').classList.toggle('open'));
+document.getElementById('sidebarClose').addEventListener('click',  () => document.getElementById('sidebar').classList.remove('open'));
+</script>
+{% endblock %}

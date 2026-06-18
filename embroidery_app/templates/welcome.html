@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block title %}Regional Embroidery Simulation System{% endblock %}
+{% block content %}
+
+<!-- NAV -->
+<nav class="nav-bar" id="navbar">
+  <div class="nav-logo">
+    <span class="logo-mark">✦</span>
+    <span class="logo-text">RESS</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <a href="{{ url_for('welcome') }}" class="nav-link active">Home</a>
+    <a href="#about" class="nav-link">About</a>
+    <a href="#states" class="nav-link">States</a>
+    <a href="{{ url_for('login') }}" class="btn-nav-login">Login</a>
+    <a href="{{ url_for('register') }}" class="btn-nav-register">Register</a>
+  </div>
+  <button class="nav-hamburger" id="navHam">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section" id="home">
+  <div class="hero-bg-overlay"></div>
+  <div class="hero-grid-pattern"></div>
+  <div class="hero-content">
+    <div class="hero-eye">Preserving India's Thread Heritage</div>
+    <h1 class="hero-h1">
+      Regional Embroidery<br>
+      <span class="line2">Simulation System</span>
+    </h1>
+    <p class="hero-sub">Explore, learn and digitally simulate India's most exquisite embroidery traditions. From Kasuti to Gota Patti — experience centuries of art.</p>
+    <div class="hero-cta">
+      <a href="{{ url_for('login') }}" class="btn-p"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <a href="{{ url_for('register') }}" class="btn-o"><i class="fas fa-user-plus"></i> Register</a>
+      <a href="{{ url_for('admin_login') }}" class="btn-g"><i class="fas fa-user-shield"></i> Admin</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hst"><span class="hst-n">5</span><span class="hst-l">States</span></div>
+      <div class="hst"><span class="hst-n">5+</span><span class="hst-l">Embroidery Types</span></div>
+      <div class="hst"><span class="hst-n">3000+</span><span class="hst-l">Years Heritage</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="sp" id="about">
+  <div class="container">
+    <div class="sh">
+      <div class="sh-tag">Who We Are</div>
+      <h2 class="sh-title">About <em>Us</em></h2>
+      <div class="sh-rule"><span></span></div>
+    </div>
+    <div class="about-grid">
+      <div class="about-text">
+        <h3>Preserving India's Embroidery Heritage Digitally</h3>
+        <p>India is home to some of the world's most exquisite embroidery traditions — each stitch a thread connecting us to centuries of culture, community, and artistry.</p>
+        <p>The Regional Embroidery Simulation System (RESS) was created to preserve, document, and digitally simulate these precious art forms for future generations. From the delicate white-on-white Chikankari of Lucknow to the vibrant mirror work of Kutch — each style carries the soul of its region.</p>
+        <div class="about-pills">
+          <div class="pill"><i class="fas fa-shield-alt"></i> Cultural Preservation</div>
+          <div class="pill"><i class="fas fa-laptop"></i> Digital Simulation</div>
+          <div class="pill"><i class="fas fa-graduation-cap"></i> Educational Learning</div>
+          <div class="pill"><i class="fas fa-map-marked-alt"></i> Regional Diversity</div>
+        </div>
+      </div>
+      <div class="about-img">
+        <img src="{{ url_for('static',filename='images/india.jpg')}}"
+             alt="Indian Embroidery"
+             onerror="this.src='https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600'">
+        <div class="about-img-caption">Traditional Indian Embroidery Arts</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section-pad dark-bg" id="features">
+  <div class="container">
+    <div class="sh">
+      <div class="sh-tag">Platform Features</div>
+      <h2 class="sh-title">About the <em>Platform</em></h2>
+      <div class="sh-rule"><span></span></div>
+    </div>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <div class="feat-num">01</div>
+        <h4>Embroidery Exploration</h4>
+        <p>Browse 5 distinct regional embroidery styles with detailed cultural information, history, and high-quality imagery.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-num">02</div>
+        <h4>Live Simulation</h4>
+        <p>Upload your fabric and digitally simulate embroidery overlays in real-time using our HTML5 Canvas engine.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-num">03</div>
+        <h4>Educational Learning</h4>
+        <p>Access step-by-step tutorials, stitching techniques, and embedded video guides for each embroidery style.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-num">04</div>
+        <h4>Favorites & Collections</h4>
+        <p>Save your favourite designs, create personal collections, and download simulation results for offline use.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-num">05</div>
+        <h4>Interactive India Map</h4>
+        <p>Navigate an interactive map to discover embroidery traditions by clicking on different states and regions.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-num">06</div>
+        <h4>Community & Culture</h4>
+        <p>Learn about the artisan communities behind each tradition and their cultural significance in Indian heritage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATES -->
+<section class="sp" id="states">
+  <div class="container">
+    <div class="sh">
+      <div class="sh-tag">Regional Heritage</div>
+      <h2 class="sh-title">Featured <em>States</em></h2>
+      <div class="sh-rule"><span></span></div>
+      <p class="sh-desc">Discover the rich embroidery traditions from five incredible Indian states</p>
+    </div>
+    <div class="states-grid">
+      <div class="sc">
+        <div class="sc-img">
+          <img src="{{ url_for('static',filename='images/kasutimain.jpg')}}" alt="Kasuti" onerror="this.src='https://images.unsplash.com/photo-1591127197378-2d7f7b2a36ad?w=400'">
+          <div class="sc-chip">Karnataka</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-name">Kasuti</div>
+          <p>Ancient geometric embroidery with four stitch types on Ilkal silk — no knots, fully reversible.</p>
+          <div class="state-tags">
+            <span class="stag st-t">Silk · Cotton</span>
+            <span class="stag st-m">3000+ yrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-img">
+          <img src="{{ url_for('static',filename='images/kutchmain.jpg') }}" alt="Kutch" onerror="this.src='https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=400'">
+          <div class="sc-chip">Gujarat</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-name">Kutch Embroidery</div>
+          <p>Vibrant mirror work with bold geometric patterns from Gujarat's Kutch desert communities.</p>
+          <div class="state-tags">
+            <span class="stag st-t">Cotton · Silk</span>
+            <span class="stag st-m">1000+ yrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-img">
+          <img src="{{ url_for('static',filename='images/chikankarimain.jpg') }}" alt="Chikankari" onerror="this.src='https://images.unsplash.com/photo-1544441892-794166f1e3be?w=400'">
+          <div class="sc-chip">Uttar Pradesh</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-name">Chikankari</div>
+          <p>Delicate white-on-white shadow embroidery from Lucknow with 32+ distinct Mughal-era stitches.</p>
+          <div class="state-tags">
+            <span class="stag st-t">Muslin · Georgette</span>
+            <span class="stag st-m">400+ yrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-img">
+          <img src="{{ url_for('static',filename='images/phulkarimain.jpg') }}" alt="Phulkari" onerror="this.src='https://images.unsplash.com/photo-1571745544682-143ea663cf2c?w=400'">
+          <div class="sc-chip">Punjab</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-name">Phulkari</div>
+          <p>Vibrant "flower work" on khaddar cotton — made by Punjabi women for bridal trousseaus.</p>
+          <div class="state-tags">
+            <span class="stag st-t">Khaddar Cotton</span>
+            <span class="stag st-m">600+ yrs</span>
+          </div>
+        </div>
+      </div>
+      <div class="sc">
+        <div class="sc-img">
+          <img src="{{ url_for('static',filename='images/rajsthanmain.jpg') }}" alt="Gota Patti" onerror="this.src='https://images.unsplash.com/photo-1601597111158-2fceff292cdc?w=400'">
+          <div class="sc-chip">Rajasthan</div>
+        </div>
+        <div class="sc-body">
+          <div class="sc-name">Gota Patti</div>
+          <p>Opulent gold ribbon applique from Jaipur's royal courts — 3D floral motifs on luxe fabrics.</p>
+          <div class="state-tags">
+            <span class="stag st-t">Silk · Velvet</span>
+            <span class="stag st-m">400+ yrs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section class="section-pad dark-bg">
+  <div class="container">
+    <div class="sh">
+      <div class="sh-tag">Our Mission</div>
+      <h2 class="sh-title">Our <em>Objectives</em></h2>
+      <div class="sh-rule"><span></span></div>
+    </div>
+    <div class="obj-grid">
+      <div class="obj-card">
+        <div class="obj-n">01</div>
+        <div class="obj-body">
+          <h4>Preserve Embroidery Heritage</h4>
+          <p>Document and digitize India's endangered embroidery traditions before they fade from collective memory, ensuring survival for future generations.</p>
+        </div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-n">02</div>
+        <div class="obj-body">
+          <h4>Digital Visualization</h4>
+          <p>Enable users to visualize how different embroidery patterns look on actual fabrics through our advanced simulation technology.</p>
+        </div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-n">03</div>
+        <div class="obj-body">
+          <h4>Cultural Awareness</h4>
+          <p>Bridge the gap between traditional artisan communities and modern audiences by sharing authentic cultural knowledge and stories.</p>
+        </div>
+      </div>
+      <div class="obj-card">
+        <div class="obj-n">04</div>
+        <div class="obj-body">
+          <h4>Educational Learning</h4>
+          <p>Provide comprehensive learning resources including techniques, tutorials, and historical context to promote appreciation of textile arts.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="main-footer">
+  <div class="footer-top">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <span class="ft-logo">✦ RESS</span>
+        <p>Regional Embroidery Simulation System — Preserving India's textile heritage through digital innovation.</p>
+        <div class="soc-row">
+          <a href="#" class="soc-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="soc-btn"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+      <div class="fc">
+        <h6>Quick Links</h6>
+        <ul>
+          <li><a href="{{ url_for('welcome') }}">Home</a></li>
+          <li><a href="{{ url_for('login') }}">Login</a></li>
+          <li><a href="{{ url_for('register') }}">Register</a></li>
+          <li><a href="{{ url_for('admin_login') }}">Admin</a></li>
+        </ul>
+      </div>
+      <div class="fc">
+        <h6>Embroidery</h6>
+        <ul>
+          <li><a href="#">Kasuti — Karnataka</a></li>
+          <li><a href="#">Kutch — Gujarat</a></li>
+          <li><a href="#">Chikankari — U.P.</a></li>
+          <li><a href="#">Phulkari — Punjab</a></li>
+          <li><a href="#">Gota Patti — Rajasthan</a></li>
+        </ul>
+      </div>
+      <div class="footer-contact footer-col">
+        <h6>Contact</h6>
+        <p><i class="fas fa-envelope"></i> contact@ress.in</p>
+        <p><i class="fas fa-phone"></i> +91 98765 43210</p>
+        <p><i class="fas fa-map-marker-alt"></i> Bengaluru, Karnataka</p>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    © 2024 Regional Embroidery Simulation System. All Rights Reserved. — Crafted with <i class="fas fa-heart" style="color:var(--gold)"></i> for India's Heritage
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+});
+document.getElementById('navHam').addEventListener('click', () => {
+  document.getElementById('navLinks').classList.toggle('open');
+});
+</script>
+{% endblock %}

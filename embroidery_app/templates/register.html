@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Register — RESS{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-left">
+    <div class="auth-left-bg"></div>
+    <a href="{{ url_for('welcome') }}" class="auth-logo" style="position:relative;z-index:1">✦ RESS</a>
+    <div class="auth-emblem" style="position:relative;z-index:1">
+      <div class="er er1"></div>
+      <div class="er er2"></div>
+      <div class="er er3"></div>
+      <div class="emblem-dot"></div>
+    </div>
+    <h2 style="position:relative;z-index:1">Join RESS</h2>
+    <p style="position:relative;z-index:1">Create your account and begin your journey through India's embroidery heritage</p>
+    <div class="auth-quote" style="position:relative;z-index:1;margin-top:28px">
+      <blockquote>"The art of embroidery is the art of a civilization."</blockquote>
+    </div>
+  </div>
+  <div class="auth-right">
+    <div class="auth-box">
+      <h3 class="auth-box-title">Create Account</h3>
+      <p class="auth-box-sub">Fill in the details below to get started</p>
+      <form method="POST" action="{{ url_for('register') }}" class="auth-form" id="regForm">
+        <div class="ff">
+          <label class="fl"><i class="fas fa-user"></i> Full Name</label>
+          <input class="fi" type="text" name="full_name" placeholder="Your Full Name" required>
+        </div>
+        <div class="ff">
+          <label class="fl"><i class="fas fa-envelope"></i> Email Address</label>
+          <input class="fi" type="email" name="email" placeholder="your@email.com" required>
+        </div>
+        <div class="ff">
+          <label class="fl"><i class="fas fa-lock"></i> Password</label>
+          <div class="pw-wrap">
+            <input class="fi" type="password" id="pw" name="password" placeholder="Min 6 chars, upper, lower, number" required>
+            <span class="pw-eye" onclick="togglePass('pw')"><i class="fas fa-eye"></i></span>
+          </div>
+          <div class="pw-strength">
+            <div class="pw-bar"><div class="pw-fill" id="pwFill"></div></div>
+            <span class="pw-label" id="pwLabel"></span>
+          </div>
+        </div>
+        <div class="ff">
+          <label class="fl"><i class="fas fa-lock"></i> Confirm Password</label>
+          <div class="pw-wrap">
+            <input class="fi" type="password" id="cpw" name="confirm_password" placeholder="Repeat your password" required>
+            <span class="pw-eye" onclick="togglePass('cpw')"><i class="fas fa-eye"></i></span>
+          </div>
+          <span class="fe" id="cpwErr"></span>
+        </div>
+        <button type="submit" class="btn-sub"><i class="fas fa-user-plus"></i> Create Account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+    </div>
+  </div>
+</div>
+<script>
+document.getElementById('pw').addEventListener('input', function(){
+  const v = this.value;
+  let s = 0;
+  if(v.length>=6) s++; if(/[A-Z]/.test(v)) s++; if(/[a-z]/.test(v)) s++; if(/\d/.test(v)) s++;
+  const colors=['','#e05252','#e5962a','#5eead4','#2dba72'];
+  const labels=['','Weak','Fair','Good','Strong'];
+  document.getElementById('pwFill').style.width=(s*25)+'%';
+  document.getElementById('pwFill').style.background=colors[s]||'';
+  document.getElementById('pwLabel').textContent=labels[s]||'';
+});
+document.getElementById('regForm').addEventListener('submit', function(e){
+  if(document.getElementById('pw').value !== document.getElementById('cpw').value){
+    e.preventDefault();
+    document.getElementById('cpwErr').textContent='Passwords do not match!';
+  }
+});
+</script>
+{% endblock %}
